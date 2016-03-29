@@ -1,0 +1,16 @@
+html/
+img/
+sample/
+report.aux
+Problem Statement.gdoc
+report.lof
+report.log
+report.lot
+report.pdf
+SCE4YPTemplate.sty
+sample_article.TEX
+report.toc
+
+*.swp
+*.swo
+*.aux

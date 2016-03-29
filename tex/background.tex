@@ -1,0 +1,100 @@
+\chapter{Background Literature Review}
+
+%=================================================================================
+
+\section{A Few \LaTeX\ Examples}
+
+You can reference great written works like this \cite{ABC} or
+others like this \cite{XYZ}.
+
+%=================================================================================
+
+\section {Mathematical Equations}
+Simple equations, like $x^y$ or $x_n = \sqrt{a + b}$ can be typeset right
+in the text line by enclosing them in a pair of single dollar sign symbols.
+Don't forget that if you want a real dollar sign in your text, like \$2000,
+you have to use the \verb+\$+ command.
+
+An example equation is
+\begin{equation} \label{E:myfirst}
+	A = B
+\end{equation}
+This was equation \eqref{E:myfirst}.
+
+A more complicated equation should be typeset in {\em displayed math\/} mode,
+like this:
+\[
+	z \left( 1 \ +\ \sqrt{\omega_{i+1} + \zeta -\frac{x+1}{\Theta +1} y + 1} 
+	\ \right)
+	\ \ \ =\ \ \ 1
+\]
+The "equation" environment displays your equations, and automatically
+numbers them consecutively within your document, like this:
+\begin{equation}
+	\left[
+		{\bf X} + {\rm a} \ \geq\ 
+		\underline{\hat a} \sum_i^N \lim_{x \rightarrow k} \delta C
+	\right]
+\end{equation}
+
+
+Other environments exist, like the "align" environment.  For instance,
+the {\em unitary} Fourier transform pair is given as
+\begin{align}
+	X(j\Omega) &= \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{\infty} x(t) e^{-j\Omega t} dt\\
+	x(t) &= \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{\infty} X(j\Omega) e^{j\Omega t} d\Omega
+\end{align}
+
+Here is a matrix:
+$$
+\left[ \begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix} \right]
+$$
+
+
+Possible useful text environments could include the following.
+
+\begin{lemma} 
+	This is a lemma.
+\end{lemma}
+
+\begin{theorem} \label{T:my1}
+	This is a theorem.
+\end{theorem}
+
+
+\begin{proof}
+	This is the proof of Theorem~\ref{T:my1}.
+\end{proof}
+
+
+\begin{definition}
+	This is a definition.
+\end{definition}
+
+\begin{notation}
+	This is some notation.
+\end{notation}
+
+%=================================================================================
+
+\section{Example Figure}
+
+%An example figure grabbed from the Carleton University webpage (\url{http://www.carleton.ca}) is shown in Fig.~\ref{fig-culogo}.
+%\begin{figure}[hbt]
+	%\begin{center}
+		%\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{mvc_detailed.png}
+	%\end{center}
+	%\caption{Carleton University logo.}
+	%\label{fig-culogo}
+%\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\chapter{Your Implementation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\chapter{Experimental Results}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
