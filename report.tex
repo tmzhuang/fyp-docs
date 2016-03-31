@@ -5,16 +5,28 @@
 \documentclass[12pt,final]{report}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{graphicx}
+\usepackage{caption}
 \usepackage{url}
+\usepackage{listings}
+\usepackage{fancyref}
+\usepackage{color}
 \usepackage{SCE4YPTemplate}
+
+\lstloadlanguages{Ruby}
+\lstset{%
+basicstyle=\ttfamily\color{black},
+commentstyle = \ttfamily\color{red},
+keywordstyle=\ttfamily\color{blue},
+stringstyle=\color{orange}}
+
 \graphicspath{{img/}}
+\includeonly{tex/introduction, tex/reference, tex/project}
 
 \begin{document}
 %\title{How to Write Report\\
 %With Two Line Titles}
 \title{Ruby Dependency Visualization}
 \author{Tianming Zhuang}
-\studentid{100875151}
 % Remember to use your titles
 % Use \copyrightyear{1885} to force a particular year
 % for the copyright statement.
@@ -28,10 +40,10 @@
 % new page.  These are numbered using Roman numerals.
 % If there are no such pages, do not remove the \beforepreface command
 % since it creates the title page.
-\beforepreface
+%\beforepreface
 
 \include{tex/preface}
-\includeonly{tex/introduction}
+\include{tex/introduction}
 \include{tex/project}
 \include{tex/background}
 \include{tex/conclusion}

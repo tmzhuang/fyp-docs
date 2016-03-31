@@ -1,0 +1,59 @@
+\chapter{Requirement Elicitation and Analysis}
+\section{Use Case Diagram}
+
+\begin{verbatim}
+Use Case Descriptions
+Name: DisplayGraph
+Description: The system displays a call graph using a DOT file of target application and the GraphGenerator.
+Precondition: A valid DOT file of the target application exists.
+Primary actor: Developer
+Secondary actors: GraphGenerator
+Basic Flow:
+The system prompts the developer for the location of the DOT file from the developer.
+The system obtains the DOT file location and VALIDATES that the location is valid.
+The system invokes the graphing function of the GraphGenerator using the DOT file.
+Postcondition: The graphical representation of the DOT file is displayed to the developer.
+Specific Alternative Flow: BFS 2
+The system determines that the location entered is not a valid file location.
+RESUME STEP BFS 1.
+Postcondition: None.
+
+Name: GenerateDOT
+Description: The system generates a call graph of a target rails application
+Precondition: The location of the target rails application is provided, or a valid DOT file of the call graph is provided
+Primary actor: Developer
+Secondary actors: None
+Basic Flow:
+The developer requests the system to generate a DOT file.
+The system prompts the developer to determine the root folder of the target rails application.
+The system VALIDATES that the target application at the specified location is a valid rails application.
+INCLUDE USE CASE GenerateCallTrace.
+INCLUDE USE CASE ParseCallTrace.
+The system generates a DOT file using the parsed call trace.
+Postcondition: A DOT file describing the call graph for the target rails application is produced.
+Specific Alternative Flow: BFS 3
+The system determines the target application is not a valid rails application.
+The system notifies the developer the target application is not valid.
+ABORT.
+Postcondition: No DOT file is produced. The system is idle.
+
+Name: GenerateCallTrace
+Description: The system generates a call trace of the target rails application.
+Precondition: The location of the root directory of a valid rails application is provided.
+Primary actor: Developer
+Secondary actors: RailsApplicationRunner
+Basic Flow:
+The system initiates the RailsApplicationRunner to run the target application.
+The system logs the the RailsApplicationRunner’s calls and produces a call trace.
+Postcondition: The call trace of the target rails application is produced.
+
+
+Name: ParseCallTrace
+Description: The call trace file produced by GenerateCallTrace is parsed.
+Precondition: A valid call trace of the target application exists.
+Primary actor: Developer
+Secondary actors: None
+Basic Flow: 
+The system parses the call trace of the target rails application to produce a list of calls relevant to the call graph.
+Postcondition: A list of calls relevant to the call graph is produced.
+\end{verbatim}

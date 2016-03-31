@@ -1,95 +1,36 @@
 \chapter{Introduction}
 
-\section{Background}
-Ruby on Rails is a web development framework that implements a RESTful API and enforces a MVC design pattern. The rails command line tool is made available with installation of Rails and comes with several functions get a minimalistic web application operational very quickly. For example, the "rails new" command generates a skeleton app using the MVC model depicted below:
+Ruby on Rails is a web development framework written in the Ruby language. It assists in producing web applications following a RESTful API and using a MVC pattern for its user interface. Setting up a new project is as simple as  {\lstinline |rails new project_name|}. This creates an application skeleton with several folders. Figure~\ref{fig:project-tree} shows an example of the {\lstinline |app/|} folder created by this command.
 
-Most of the code is organized into the /app/ folder, further subdivided into, most notably, the /models/, /views/, and /controllers/ folders. Users can generate new controllers using the "rails generate controller\_name \[action1\] \[action2\] …" command. Doing so with create a ruby class ControllerName in the controllers folder with the associated action stubs created in the class. Each action is linked to a view, which in this case is a ruby-embedded HTML file, which is also created with the same command. Controller classes created in the way all inherit from the ActionController::Base class. Similarly, one can create model classes which inherit from the ActiveREcord::Base class. In this way, it is very easy for developers to follow the MVC design pattern when creating Rails applications.
+\begin{center}
+    \includegraphics[width=.5\textwidth]{rails_project_tree.png}
+    \captionof{figure}{Folder structure of new rails project}
+    \label{fig:project-tree}
+\end{center}
+Most of the code is organized into the {\lstinline |app/|} folder, further subdivided into the {\lstinline |models/|}, {\lstinline |views/|}, and {\lstinline |controllers/|} folders. Users can generate new set of controllers, models, and views using the {\lstinline |rails generate scaffold name|} command. There are many other such tools (implemented with Rake tasks, a Ruby flavoured make), dealing with the creation of such skeleton code.
 
-\begin{figure}[hbt]
-	\begin{center}
-		\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{../img/mvc_detailed.png}
-	\end{center}
-	\caption{MVC model of Rails \cite{rails-tutorial}}
-	\label{mvc-fig}
-\end{figure}
+In addition to this basic structure, Rails comes with its own server and database (WEBrick and sqlite by default, respectively). Figure~\ref{fig:mvc} depicts the MVC model of Rails. Rails provides tools to help handle all aspects of this model. However, this mostly deals with user interface; where should code that does not deal with the interface, such as business logic, go? 
+\begin{center}
+    \includegraphics[width=.8\textwidth]{mvc_detailed.png}
+    \captionof{figure}{MVC model of Rails \cite{rails-tutorial}}
+    \label{fig:mvc}
+\end{center}
+In this particular case, there is an interest to follow domain-driven design. In model-driven development, domain objects are classified into several classes: entities, object values, aggregates, domain events. Furthermore, there are factory and repository objects which handle the creation and storing of domain objects respectively. Operations which do not belong to any domain object are put into service objects~\cite{ddd-source}. More specifically, in order to separate business logic from logic that handles database or UI, one possible solution is to encapsulate it in a service objects. The service objects handle any interaction that might be necessary between the system and external actors (such as interfacing with an external framework). In this way, the system becomes more modular (higher cohesion, looser coupling). This practice could also make the system more testable as this generally simplifies methods and the classes that contain them. 
 
-Rails, however, does not help enforce other design patterns. In this particular case, there is the need to detect when certain design patterns are violated. In model-driven development, domain objects are classified into several classes: entities, object values, aggregates, domain events. Furthermore, there is are factory and repository objects which handle the creation and storing of domain objects respectively. Operations which do not belong to any domain object are put into service objects.
+The problem of addressed by this project is that for developers working on complex systems, it can become to keep track of the service objects that exist for certain frameworks. Additionally, there could be legacy code that exists which did not adhere to the previously discussed use of service service objects for system interactions. The goal of this project is to provide developers a tool to visualize the systems they are implementing. The tool should make it clear to the user in cases where there exists a service object intended for interacting with an external framework, but another class directly makes calls to that same framework (Figure~\ref{fig:violation}).
+\begin{center}
+    \includegraphics[width=.8\textwidth]{violation_example.png}
+    \captionof{figure}{Solution example}
+    \label{fig:violation}
+\end{center}
 
-More specifically, in order to separate business logic from logic that handles database or UI, we encapsulate it in a service objects. The service objects handle any interaction that might be necessary between the system and external actors (such as interfacing with an external framework). In this way, the system becomes more modular (higher cohesion, looser coupling). This practice could also make the system more testable as this generally simplifies certain methods (in that we separated some logic into separate classes). 
+The proposed solution is to implement the described tool which can produce a call graph of a given Rails application. The call graph will highlight the parts of the system which make "violating" calls.
 
-\section{Problem Statement}
-The Rails Dependency Visualization System shall be able to produce a call graph by tracking the calls of a rails application being. The system shall be able to group parts of the graph at a component/service level (of the target application). 
+The final result of the project matches those of the requirements. The tool developed is able to produce a log of dependencies of a target Rails application and generate a call graph like the one shown in Figure~\ref{fig:result}. This project tried to take an iterative development approach. However, due to time factors, only one iteration was completed. Thus, there may be more requirements to be refined. The solution produced only matches the requirements elicited in the first iteration.
+\begin{center}
+  \includegraphics[trim={0 0 60cm 0}, clip, width=.95\textwidth]{result.png}
+    \captionof{figure}{Final result}
+    \label{fig:result}
+\end{center}
 
-The developer must make a high code coverage run of the application before invoking the system’s graphing functionality. The system will produce DOT file from the calls made in the run, the system will use to produce the call graph. The DOT file must be produced within 5-10 minutes of the end of the code coverage run. 
-
-\section{Use Case Diagram}
-
-\section{Glossary}
-Rails: Ruby on Rails, a web application framework written in Ruby.
-Component: A collection modules and classes that serve a shared function.
-GraphGenerator: Graphing component capable of producing a graph described in DOT format.
-DOT: Graph description language.
-Developer: The user that requests the system to produce the graph a target Rails application.
-Use Case Descriptions
-Name: DisplayGraph
-Description: The system displays a call graph using a DOT file of target application and the GraphGenerator.
-Precondition: A valid DOT file of the target application exists.
-Primary actor: Developer
-Secondary actors: GraphGenerator
-Basic Flow:
-The system prompts the developer for the location of the DOT file from the developer.
-The system obtains the DOT file location and VALIDATES that the location is valid.
-The system invokes the graphing function of the GraphGenerator using the DOT file.
-Postcondition: The graphical representation of the DOT file is displayed to the developer.
-Specific Alternative Flow: BFS 2
-The system determines that the location entered is not a valid file location.
-RESUME STEP BFS 1.
-    Postcondition: None.
-
-	Name: GenerateDOT
-	Description: The system generates a call graph of a target rails application
-	Precondition: The location of the target rails application is provided, or a valid DOT file of the call graph is provided
-	Primary actor: Developer
-	Secondary actors: None
-	Basic Flow:
-	The developer requests the system to generate a DOT file.
-	The system prompts the developer to determine the root folder of the target rails application.
-	The system VALIDATES that the target application at the specified location is a valid rails application.
-	INCLUDE USE CASE GenerateCallTrace.
-	INCLUDE USE CASE ParseCallTrace.
-	The system generates a DOT file using the parsed call trace.
-	Postcondition: A DOT file describing the call graph for the target rails application is produced.
-	Specific Alternative Flow: BFS 3
-	The system determines the target application is not a valid rails application.
-	The system notifies the developer the target application is not valid.
-	ABORT.
-	Postcondition: No DOT file is produced. The system is idle.
-
-	Name: GenerateCallTrace
-	Description: The system generates a call trace of the target rails application.
-	Precondition: The location of the root directory of a valid rails application is provided.
-	Primary actor: Developer
-	Secondary actors: RailsApplicationRunner
-	Basic Flow:
-	The system initiates the RailsApplicationRunner to run the target application.
-	The system logs the the RailsApplicationRunner’s calls and produces a call trace.
-	Postcondition: The call trace of the target rails application is produced.
-
-
-	Name: ParseCallTrace
-	Description: The call trace file produced by GenerateCallTrace is parsed.
-	Precondition: A valid call trace of the target application exists.
-	Primary actor: Developer
-	Secondary actors: None
-	Basic Flow: 
-	The system parses the call trace of the target rails application to produce a list of calls relevant to the call graph.
-	Postcondition: A list of calls relevant to the call graph is produced.
-
-Give an introduction to your project.  This might include:
-\begin{itemize}
-	\item Motivation for your project
-	\item Problem you are trying to solve
-	\item Scope of your project
-	\item Organization of your report
-\end{itemize}
-You should tune this appropriately for what best suits your project.
+The upcoming chapters will illustrate how the final solution was achieved. In Chapter~\ref{chap:project}, this report will discuss the logistics of this project from an Engineering perspective. Following, Chapter~\ref{chap:requirement} will discuss requirement elicitation and analysis. Chapter~\ref{chap:design} will discuss the system design and implementation. And lastly, Chapter~\ref{chap:verification} will discuss system verification and validation. This project did not have a chance to reach deployment stage, so there will be no discussion on operation and maintenance. 
