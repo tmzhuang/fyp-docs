@@ -1,59 +1,84 @@
-\chapter{Requirement Elicitation and Analysis}
+\chapter{Requirement}
+\label{chap:requirement}
+This chapter documents the requirement elicitation and analysis process. Before any design begins, it is important to determine what exactly the customer requires. This facilitates design and prevents feature creeps. The following is a written description of the customer requirements.
+
+The dependency graphing system shall capture the dependencies of a target Ruby on Rails application. The dependency graphing system shall produce a call graph using the previously captured dependencies.
+
+These use cases are illustrated in Section~\ref{sec:ucd} and described in detail in Section~\ref{sec:descrip}
+
 \section{Use Case Diagram}
-
-\begin{verbatim}
-Use Case Descriptions
-Name: DisplayGraph
-Description: The system displays a call graph using a DOT file of target application and the GraphGenerator.
-Precondition: A valid DOT file of the target application exists.
-Primary actor: Developer
-Secondary actors: GraphGenerator
-Basic Flow:
-The system prompts the developer for the location of the DOT file from the developer.
-The system obtains the DOT file location and VALIDATES that the location is valid.
-The system invokes the graphing function of the GraphGenerator using the DOT file.
-Postcondition: The graphical representation of the DOT file is displayed to the developer.
-Specific Alternative Flow: BFS 2
-The system determines that the location entered is not a valid file location.
-RESUME STEP BFS 1.
-Postcondition: None.
-
-Name: GenerateDOT
-Description: The system generates a call graph of a target rails application
-Precondition: The location of the target rails application is provided, or a valid DOT file of the call graph is provided
-Primary actor: Developer
-Secondary actors: None
-Basic Flow:
-The developer requests the system to generate a DOT file.
-The system prompts the developer to determine the root folder of the target rails application.
-The system VALIDATES that the target application at the specified location is a valid rails application.
-INCLUDE USE CASE GenerateCallTrace.
-INCLUDE USE CASE ParseCallTrace.
-The system generates a DOT file using the parsed call trace.
-Postcondition: A DOT file describing the call graph for the target rails application is produced.
-Specific Alternative Flow: BFS 3
-The system determines the target application is not a valid rails application.
-The system notifies the developer the target application is not valid.
-ABORT.
-Postcondition: No DOT file is produced. The system is idle.
-
-Name: GenerateCallTrace
-Description: The system generates a call trace of the target rails application.
-Precondition: The location of the root directory of a valid rails application is provided.
-Primary actor: Developer
-Secondary actors: RailsApplicationRunner
-Basic Flow:
-The system initiates the RailsApplicationRunner to run the target application.
-The system logs the the RailsApplicationRunner’s calls and produces a call trace.
-Postcondition: The call trace of the target rails application is produced.
+\label{sec:ucd}
+\begin{center}
+    \includegraphics[width=.8\textwidth]{ucd.png}
+    \captionof{figure}{dependency\_grapher use case diagram}
+    \label{fig:ucd}
+\end{center}
 
 
-Name: ParseCallTrace
-Description: The call trace file produced by GenerateCallTrace is parsed.
-Precondition: A valid call trace of the target application exists.
-Primary actor: Developer
-Secondary actors: None
-Basic Flow: 
-The system parses the call trace of the target rails application to produce a list of calls relevant to the call graph.
-Postcondition: A list of calls relevant to the call graph is produced.
-\end{verbatim}
+\section{Use Case Description}
+\label{sec:descrip}
+Name: 1.0: LogApplication \\
+Description: The system produces a set of call dependencies of the system.\\
+Precondition: The location of the root directory of a valid rails application is provided.\\
+Primary actor: Developer\\
+Secondary actor: Target application\\
+Basic Flow:\\
+1. The developer initiates tests on the target application.\\
+2. The system tracks all method calls and return during each test.\\
+3. The system outputs a set of the dependencies it logged.\\
+Postcondition: A file containing the set of dependencies.\\
+
+\noindent Name: 2.0: GenerateGraph\\
+Description: The system produces a call graph of the target application.\\
+Precondition: The system previously produced a set of dependencies from the target application.\\
+Primary actor: Developer\\
+Basic Flow:\\
+1. The developer initiates graph generation.\\
+2. The system VALIDATES that a file with a set of dependencies already exist.\\
+3. The system reduces the set of dependencies to a subset containing only dependencies relating to known classes.\\
+4. The system determines which dependencies are violations.
+5. The system produces a call graph from the dependencies, with violating dependencies shown in a different colour.\\
+Specific Alternative Flow: BFS 2\\
+2. The system notifies the user that no file containing a set of dependencies exist.\\
+3. ABORT.\\
+Postcondition: A file containing the graphical representation of the call graph with violations highlighted.\\
+
+\noindent Name: 2.1: GetDependencies\\
+Description: The system produces a subset of the dependencies it loads from file.\\
+Precondition: The system is given a file containing a set of dependencies.\\
+Primary actor: Developer\\
+EXTENDS USE CASE 2.0\\
+Basic Flow:\\
+1. The system VALIDATES that a file with a set of dependencies already exist.\\
+2. The system reduces the set of dependencies to a subset containing only dependencies relating to known classes.\\
+3. The system determines which dependencies are violations.
+4. The system produces a call graph from the dependencies, with violating dependencies shown in a different colour.\\
+Specific Alternative Flow: BFS 2\\
+1. The system notifies the user that no file containing a set of dependencies exist.\\
+2. ABORT.\\
+Postcondition: A file containing the graphical representation of the call graph with violations highlighted.\\
+
+\noindent Name: 2.2: FilterDependencies\\
+Description: The system produces a subset of the dependencies it loads from file.\\
+Precondition: The system is given a set of dependencies.\\
+Primary actor: Developer\\
+EXTENDS USE CASE 2.0\\
+Basic Flow:\\
+1. The system loads the set of given dependencies.\\
+2. The system gets a set of known classes.\\
+3. The system produces a set of dependencies that contain at least a known class.\\
+Postcondition: A set of dependencies that are directly related to a known class. \\
+
+\noindent Name: 2.3: AnalyzerDependencies\\
+Description: The system processes the set of dependencies and adds information regarding the types of the dependencies, callers, and receivers.\\
+Precondition: The system is given a set of dependencies processed by the USE CASE 2.0.\\
+Primary actor: Developer\\
+EXTENDS USE CASE 2.0\\
+Basic Flow:\\
+1. The system loads the set of given dependencies.\\
+2. The system calculates the service classes.\\
+3. The system stores if dependency caller or receivers are services.\\
+4. The system calculates the "framework" classes.\\
+5. The system stores if dependency caller or receivers are frameworks.\\
+6. The system determines which dependencies are violations.\\
+Postcondition: A set of dependencies which have been marked with the relevant information marked.\\

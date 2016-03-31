@@ -1,0 +1,56 @@
+\chapter{Design and Implementation}
+\label{chap:design}
+
+\section{Design}
+The full design of this system is show in Figure~\ref{fig:design_full}. Since the system is not critical, there are no componments dealing with the redundancy of the system. Many of the classes were extracted from the requirements use the verb-noun method.
+\begin{center}
+    \includegraphics[width=.8\textwidth]{design_full.png}
+    \captionof{figure}{Full class diagram}
+    \label{fig:design_full}
+\end{center}
+
+Figure~\ref{fig:design-p1} shows several classes required for achieving the logging requirement.
+\begin{center}
+    \includegraphics[width=.9\textwidth]{design_p1.png}
+    \captionof{figure}{Logging classes}
+    \label{fig:design-p1}
+\end{center}
+
+
+Figure~\ref{fig:design-p2} shows several classes required for achieving the graphing requirement.
+\begin{center}
+    \includegraphics[width=.9\textwidth]{design_p2.png}
+    \captionof{figure}{Graphing classes}
+    \label{fig:design-p2}
+\end{center}
+
+\section{Implementation}
+Implementation was achieved using the Ruby language. This was a fit since way the program is hooked into target application uses a Ruby class, TracePoint. The souce code is available for viewing at the project home page (see Appendix~\ref{chap:appendix}).Here is an excerpt from {\lstinline |grapher.rb|}:
+\begin{lstlisting}[
+  language=Ruby,
+  breaklines=true
+]
+    def create_clusters(method)
+      cluster_options = {tooltip: " "}
+      if method.types.include?(:service)
+        cluster_options[:bgcolor] = :azure3
+      elsif method.types.include?(:framework)
+        cluster_options[:bgcolor] = :brown
+      end
+
+      # Iterate over ancestors (eg. Minitest::Unit yields Minitest, # Unit)
+      # This variable is used to reference the immediate parent of the 
+      # current graph. Initializes to the root; updates on each iteration.
+      prev_graph = @graph 
+      method.ancestors.each_with_index do |klass, i|
+        # Prepending "cluster_" is mandatory according to ruby-graphviz API
+        graph_id = "cluster_" + method.ancestors[0..i].join("_")
+        # add_graph returns an existing graph if it exists
+        subgraph = prev_graph.add_graph(graph_id, cluster_options)
+        subgraph[:label] = klass
+        # Update parent for next iteration
+        prev_graph = subgraph
+      end
+      prev_graph
+    end
+\end{lstlisting}

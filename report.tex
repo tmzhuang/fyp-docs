@@ -20,13 +20,22 @@ keywordstyle=\ttfamily\color{blue},
 stringstyle=\color{orange}}
 
 \graphicspath{{img/}}
-\includeonly{tex/introduction, tex/reference, tex/project}
+%\includeonly{tex/introduction, tex/reference}
+%\includeonly{tex/project}
+%\includeonly{tex/requirement}
+%\includeonly{tex/design}
+%\includeonly{tex/verification}
+%\includeonly{tex/conclusion}
 
 \begin{document}
 %\title{How to Write Report\\
 %With Two Line Titles}
 \title{Ruby Dependency Visualization}
 \author{Tianming Zhuang}
+
+%Supervisor: Professor Babak Esfandiari\\
+
+%A report submitted in partial fulfillment of the requirements of SYSC-4907 Engineering Project}
 % Remember to use your titles
 % Use \copyrightyear{1885} to force a particular year
 % for the copyright statement.
@@ -40,15 +49,17 @@ stringstyle=\color{orange}}
 % new page.  These are numbered using Roman numerals.
 % If there are no such pages, do not remove the \beforepreface command
 % since it creates the title page.
-%\beforepreface
+\beforepreface
 
 \include{tex/preface}
 \include{tex/introduction}
 \include{tex/project}
-\include{tex/background}
+\include{tex/requirement}
+\include{tex/design}
+\include{tex/verification}
 \include{tex/conclusion}
 
 \include{tex/reference}
 
-\include{tex/appendix}
+%\include{tex/appendix}
 \end{document}
