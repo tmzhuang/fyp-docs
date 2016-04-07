@@ -2,22 +2,43 @@
 \label{chap:design}
 
 \section{Design}
-The full design of this system is show in Figure~\ref{fig:design_full}. Since the system is not critical, there are no componments dealing with the redundancy of the system. Many of the classes were extracted from the requirements use the verb-noun method.
+The full design of this system is shown in Figure~\ref{fig:design_full}. Since the system is not critical, there are no components dealing with the redundancy of the system. Many of the classes were extracted from the requirements using the verb-noun method.
 \begin{center}
     \includegraphics[width=.8\textwidth]{design_full.png}
     \captionof{figure}{Full class diagram}
     \label{fig:design_full}
 \end{center}
 
-Figure~\ref{fig:design-p1} shows several classes required for achieving the logging requirement.
 \begin{center}
+    \includegraphics[width=.95\textwidth]{logging_seq.png}
+    \captionof{figure}{Sequence diagram for Use Case 1.0 LogApplication}
+    \label{fig:logging_seq}
+\end{center}
+Figure \ref{fig:logging_seq} shows the typical class interactions to complete the LogApplication use case. In order capture the call dependencies within the target application, the system takes advantage of the target application's existing testing framework. This assumes that the target application has automated testing framework in place. The automated tests should call enough of the code such that resulting dependencies logged can be used to produce a call graph. The resulting graph must accurately represent the call dependencies within the target application.
+
+Figure~\ref{fig:design-p1} shows a static view of the classes involved in logging the call dependencies. Method is an entity class which captures the following information about a method call or return:
+\begin{itemize}
+  \item The defining class of the method.
+  \item The method name.
+  \item The path to the file containing the method call.
+  \item The line number in the file where the method is called.
+\end{itemize}
+ParseClass is a service object whose purpose is to parse class name of the defined class before instantiating a Method with it. A Dependency instance is created with two Method instances; one to represent the method caller and one to represent the receiver. The logging process should produce a set of dependencies which can then be used to create the call graph. Each caller and receiver in the dependency represents a node, and the dependency itself represents an edge. The SerializeHelpers class exists as a way to provide serialization functionality to the Dependency and Method classes. This functionality was inferred from the fact that the system should not need to run the target application's test suite each time it needs to produce a graph. (Running the test suite can be time consuming.) As well, this increases modularity as any program that can interface with a set of Dependency classes can then load the produced file for further processing.
+\begin{centers}
     \includegraphics[width=.9\textwidth]{design_p1.png}
     \captionof{figure}{Logging classes}
     \label{fig:design-p1}
 \end{center}
 
+Figure \ref{fig:graphing_seq} shows the class interactions to generate a graph. A Filter instance loads the set of Dependencies created by the logger, and then makes available a filtered set of Dependencies. An Analyzer instance further processes the set of Dependencies passed to it by the Filter instance. Finally, a Grapher instance produces output in the form of a call graph.
 
-Figure~\ref{fig:design-p2} shows several classes required for achieving the graphing requirement.
+\begin{center}
+    \includegraphics[width=.95\textwidth]{graphing_seq.png}
+    \captionof{figure}{Sequence diagram for Use Case 2.0 GenerateGraph}
+    \label{fig:graphing_seq}
+\end{center}
+
+Filtering is necessary as there are many classes logged which are of no interest to the user. The Filter instance prunes the set of loaded Dependencies to those of relevance.  As well, in the future, different filtering logic could be implemented in this class to control the final graph output more precisely. In fact, a pipe-and-filter architecture was chosen to allow control of the data before it is graphed.  The Analyzer class contains the logic which detects violations. It sets certain attributes in the set of Dependencies before passing them to the Grapher.  Figure~\ref{fig:design-p2} provides a static view of the graphing classes.
 \begin{center}
     \includegraphics[width=.9\textwidth]{design_p2.png}
     \captionof{figure}{Graphing classes}
@@ -25,32 +46,67 @@ Figure~\ref{fig:design-p2} shows several classes required for achieving the grap
 \end{center}
 
 \section{Implementation}
-Implementation was achieved using the Ruby language. This was a fit since way the program is hooked into target application uses a Ruby class, TracePoint. The souce code is available for viewing at the project home page (see Appendix~\ref{chap:appendix}).Here is an excerpt from {\lstinline |grapher.rb|}:
+Ruby provides a meta-programming class which provides hooks which can fire on all method calls after it is enabled. For example, the following excerpt of code would produce a TracePoint object which fires on method calls and method returns. Notice that it is possible execute code when the hook fires. Also of note is that the TracePoint class provides several methods for inspecting the method from which the hook fired (such as defining class, method ID, etc.).
 \begin{lstlisting}[
   language=Ruby,
   breaklines=true
 ]
-    def create_clusters(method)
-      cluster_options = {tooltip: " "}
-      if method.types.include?(:service)
-        cluster_options[:bgcolor] = :azure3
-      elsif method.types.include?(:framework)
-        cluster_options[:bgcolor] = :brown
-      end
-
-      # Iterate over ancestors (eg. Minitest::Unit yields Minitest, # Unit)
-      # This variable is used to reference the immediate parent of the 
-      # current graph. Initializes to the root; updates on each iteration.
-      prev_graph = @graph 
-      method.ancestors.each_with_index do |klass, i|
-        # Prepending "cluster_" is mandatory according to ruby-graphviz API
-        graph_id = "cluster_" + method.ancestors[0..i].join("_")
-        # add_graph returns an existing graph if it exists
-        subgraph = prev_graph.add_graph(graph_id, cluster_options)
-        subgraph[:label] = klass
-        # Update parent for next iteration
-        prev_graph = subgraph
-      end
-      prev_graph
-    end
+tp = TracePoint.trace(:call, :return) do |tp|
+  case tp.event
+  when :call 
+    handle_call(tp.defined_class, tp.method_id, tp.path, tp.lineno)
+  when :return
+    handle_return
+  end
+end
 \end{lstlisting}
+
+To associate a calling method with its receiving method, the system keeps a mock call stack. Each time TracePoint fires on a call, a Method instance is created with the pertinent information and pushed onto the stack. When the return fires, a Dependency is created. The object on the top of the stack is popped and considered the receiver, and the second top item is considered the caller. The new Dependency is then pushed into a separated tracked set of Dependencies. 
+\begin{lstlisting}[
+  language=Ruby,
+  breaklines=true
+]
+def handle_call(defined_class, method_id, path, lineno)
+  method = Method.new(ParseClass.call(defined_class), method_id.to_s, path, lineno.to_s) 
+  @methods[method.id] = method unless  @methods[method.id]
+  @call_stack <<  @methods[method.id]
+end
+
+def handle_return
+  kaller = @call_stack[-2] # Second last item on stack is the kaller
+  receiver = @call_stack.pop # First item on stack is receiver
+  # Ignore case where kaller is nil (ie. main)
+  if kaller
+    dep = Dependency.new(kaller, receiver)
+    key = dep.id
+    if @keys.include?(key)
+      @dependencies[key].touch
+    else
+      @dependencies[key] = dep
+      @keys << key
+    end
+  end
+end
+\end{lstlisting}
+The defining class returned by the TracePoint needs to be parsed because of the output produced from anonymous modules. While most classes produces names of the form "Module1::Module2::Class1", anonymous modules produce names such as "\#<Module: 0x2f3423b392a>". Furthermore, these names can sometimes be nested ("\#<\#<Class: 0x4f2ab8ff83e2>: 0x342bb2c3852>").  In these cases, it was decided that in order to normalize class names, the hex would be extracted from these names to serve as the Class or Module name. Since they are anonymous, it is only important that they are recognized as such. The names are parsed using built-in Ruby regular expression methods. For example, {\lstinline[breaklines=true]|"#<Class:0x007fd550c04338>".match(anon_pattern)[2] => "0x007fd550c04338".|}
+\begin{lstlisting}[
+  language=Ruby,
+  breaklines=true
+]
+# #<Class:0x007fd550c04338> matches with groups:
+# 1.Class
+# 2.0x007fd550c04338
+def anon_pattern 
+  /#<(Class|Module):([^>]*)>/
+end
+\end{lstlisting}
+
+To persist the logged information, the logger serializes the set of dependencies as YAML. YAML is a fairly standard way of serializing Ruby objects as readable text. Security was not a requirement and serializing to YAML does not seriously impact the performance of the system. Therefore, no alternative forms of serialization were considered.
+
+The Filter class uses the GetKnownClasses service object to obtain a list of "known classes". GetKnownClasses makes use of the built-in Rails config variable {\lstinline|eager_load_paths|}, to obtain a list of folders (app/controllers/, app/models, etc.). The contents folders are listed from which the name of the classes are inferred. It is important to point out that a file named some\_file.rb is assumed to contain class SomeFile. Rails provides a method for switching between these two formats in its ActiveSupport module. It is assumed all custom class definitions are in these "known classes". Dependencies which do not contain a known class as either a caller or receiver are filtered out.
+
+Violations are determined based on a list of known service classes and external frameworks. The system obtains a list of service objects in the same way that known classes are determined (ie. inferring class names from files under app/services). The set of dependencies is then iterated over. All receiving classes which are unknown (not in the list of known classes), but have a calling class which is a service are marked "framework" classes . To detect a service object violation, the set of dependencies is passed through again to mark all dependencies which contain a framework class as a receiver, but a class that is not a service as a caller.
+
+Graphing is achieved with the graphing library GraphViz and a wrapper class for the library implemented as a ruby gem, ruby-graphviz. The set of dependencies is parsed to obtain the nodes and edges which which to create the graph. The caller and receiver are nodes in the graph, and the dependency itself is the edge between the two nodes. Once a GraphViz graph object is created, producing the graph is trivial since the GraphViz library handles it. The SVG format was chosen as default as it allows text to be displayed on hover over elements (such as nodes). Information pertaining to the file and line number in which a class is defined would be unwieldy when displayed directly on the graph. Should the user stick with the default, displaying the graph in SVG format on a typical browser would let the user view this information by hovering over nodes.
+
+The source code is available for viewing at the project home page (see Appendix~\ref{chap:repo}).

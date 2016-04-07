@@ -1,6 +1,36 @@
 \appendix
 
-\chapter{Extra Simulation Results}
+\chapter{Project Repository}
+\label{chap:repo}
+The project was kept under version control using git through GitHub. The repository can be found at https://github.com/tmzhuang/dependency\_grapher. Additionally, the tool was tool packaged in a Ruby Gem (a common way of sharing Ruby code) and released on RubyGems.org. Instructions on installation and operation of the tool can be found in the readme of the repository. It is included here for the convenience of the reader.
 
-\chapter{Review of Linear Algebra}
+\section{Installations}
+Add this line to your application's Gemfile:
+\begin{lstlisting}[
+  language=Ruby,
+  breaklines=true
+]
+gem 'dependency_grapher'
+\end{lstlisting}
+And then run {\lstinline|bundle install|}. 
 
+\section{Usage}
+In your test helpers file {\lstinline|test/test_helper|}, include {\lstinline|DependencyGrapher::TestHelpers|} to your tests as shown below:
+\begin{lstlisting}[
+  language=Ruby,
+  breaklines=true
+]
+class ActionController::TestCase
+  include DependencyGrapher::TestHelpers
+  #include DependencyGrapher::TestHelpers
+end
+
+class ActiveSupport::TestCase
+  include DependencyGrapher::TestHelpers
+  # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
+  fixtures :all
+end
+\end{lstlisting}
+DependencyGrapher requires you first to run your unit tests to produce set of dependencies (outputted to your project folder as dependencies.yml). The parts of your system that are not touched by the tests will not be shown in the graph.
+
+After the tests have complete, run {\lstinline|rake dep:graph|} to produce a SVG graph. You may specify the name format of the graph output by using {\lstinline|rake dep:graph[name.format]|}. For example, {\lstinline|rake dep:graph[graph.dot]|} produces a DOT file of the graph. Acceptable formats can be found on the GraphViz site.

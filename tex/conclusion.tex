@@ -1,6 +1,7 @@
-\chapter{Conclusions}
+\chapter{Conclusion}
 \label{chap:conclusions}
 
-For organizations who want to employ service objects in their Rails objects, it be can difficult to detect when the service objects are being circumvented. The proposed solution was develop a tool to visualize such violations, which was achieved by the end of the project.
+For organizations who want to employ service objects in their Rails objects, it can be difficult to detect when the service objects are being circumvented. The proposed solution was to develop a tool to visualize such violations, which was achieved by the end of the project.
 
-The solution reached is rather niche; however the tool can be modified in the future to include other forms of violations the user wishes to detect. In such a case, the tool should also produce interactive output (as opposed to a static graph). In this way, the user can show or hide different types of violations in the target application.
+The system was designed with modularity and extensibility in mind. The system's design makes it easy to extract parts of the tool for use in other applications (such as the logging classes). As a result, other applications may use the system to log the behaviour of a Rails application. The system also allows the addition of classes which enables the tool to detect a wider range of violations (such as adding more classes in the pipes-and-filters chain of the graphing classes). 
+

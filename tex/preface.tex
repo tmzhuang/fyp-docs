@@ -1,13 +1,17 @@
 \prefacesection{Abstract}
-This report is on the the creation of a development tool for visualizing ruby
-dependencies. In order to aid developers in adhering to a DDD pattern, this tool
-is used to highlight misuse of service objects.
+This report outlines the creation of a development tool for visualizing Ruby
+dependencies. The goal of this project is to create a development tool that provides 
+an easy way to visualize violations of certain design patterns in a call graph. The 
+tool is designed for use by developers of Ruby on Rails web applications. The completed 
+tool is able to output such a graph, but is limited to highlighting violations regarding 
+only the use of service objects.
 
 %=================================================================================
 
 \prefacesection{Acknowledgements}
-I would like to thank two supervisors, Babak Esfandiari and Jason Normore, for all 
-their time, advice, and support.
+I would like to thank my two supervisors, Babak Esfandiari and Jason Normore, for  
+their time, advice, and support. I would also like to thank my loving girlfriend, Angie
+Li, for the time she took to proofread this incredulously long report.
 
 %=================================================================================
 
@@ -20,11 +24,14 @@ their time, advice, and support.
 \prefacesection{List of Abbreviations}
 
 \begin{tabular}[t]{l@{\hspace*{2cm}}l}
-	REST & Representational State Transfer \\
 	API & Application Programming Interface\\
+  DDD & Domain-Driven Design\\
+  IDE & Integrated Development Environment\\
   MVC & Model View Controller\\
+	REST & Representational State Transfer \\
+  TDD & Test Driven Development\\
   UI & User Interface\\
-  DDD & Domain-Driven Design
+  YAML & YAML Ain't Markup Language\\
 \end{tabular}
 
 %=================================================================================

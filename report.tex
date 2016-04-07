@@ -11,6 +11,8 @@
 \usepackage{fancyref}
 \usepackage{color}
 \usepackage{SCE4YPTemplate}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
 
 \lstloadlanguages{Ruby}
 \lstset{%
@@ -20,12 +22,6 @@ keywordstyle=\ttfamily\color{blue},
 stringstyle=\color{orange}}
 
 \graphicspath{{img/}}
-%\includeonly{tex/introduction, tex/reference}
-%\includeonly{tex/project}
-%\includeonly{tex/requirement}
-%\includeonly{tex/design}
-%\includeonly{tex/verification}
-%\includeonly{tex/conclusion}
 
 \begin{document}
 %\title{How to Write Report\\
@@ -33,7 +29,7 @@ stringstyle=\color{orange}}
 \title{Ruby Dependency Visualization}
 \author{Tianming Zhuang}
 
-%Supervisor: Professor Babak Esfandiari\\
+\principaladviser{Professor Babak Esfandiari}
 
 %A report submitted in partial fulfillment of the requirements of SYSC-4907 Engineering Project}
 % Remember to use your titles
@@ -58,8 +54,6 @@ stringstyle=\color{orange}}
 \include{tex/design}
 \include{tex/verification}
 \include{tex/conclusion}
-
 \include{tex/reference}
-
-%\include{tex/appendix}
+\include{tex/appendix}
 \end{document}
